@@ -478,10 +478,43 @@ async function seedTasks() {
   console.log(`Seeded ${TASKS.length} prep checklist tasks.`);
 }
 
+const NEWS_SOURCES: { name: string; keywords: string }[] = [
+  { name: "Student visa policy", keywords: "F-1 visa OR OPT policy change" },
+  {
+    name: "University funding announcements",
+    keywords: "graduate student funding fellowship announcement",
+  },
+  {
+    name: "International student news",
+    keywords: "international student news US universities",
+  },
+];
+
+async function seedNewsSources() {
+  for (const source of NEWS_SOURCES) {
+    const existing = await prisma.newsSource.findFirst({
+      where: { name: source.name },
+    });
+    if (!existing) {
+      await prisma.newsSource.create({
+        data: {
+          name: source.name,
+          type: "api",
+          keywords: source.keywords,
+          enabled: true,
+        },
+      });
+    }
+  }
+
+  console.log(`Seeded ${NEWS_SOURCES.length} news keyword sources.`);
+}
+
 async function main() {
   await seedAdminUser();
   await seedUniversities();
   await seedTasks();
+  await seedNewsSources();
 }
 
 main()

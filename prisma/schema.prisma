@@ -117,12 +117,46 @@ model FundingOffer {
 }
 
 model NewsSource {
-  id       String  @id @default(cuid())
-  name     String
-  type     String // "rss" | "api"
-  url      String?
-  keywords String? // comma-separated filter terms
-  enabled  Boolean @default(true)
+  id            String   @id @default(cuid())
+  name          String
+  type          String // "rss" | "api"
+  url           String?
+  keywords      String? // search query sent to the news API, e.g. "student visa policy"
+  enabled       Boolean  @default(true)
+  lastFetchedAt DateTime?
+
+  articles NewsArticle[]
+}
+
+model NewsArticle {
+  id          String      @id @default(cuid())
+  sourceId    String?
+  source      NewsSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  title       String
+  url         String      @unique
+  description String?
+  imageUrl    String?
+  publishedAt DateTime?
+  fetchedAt   DateTime    @default(now())
+
+  @@index([sourceId])
+}
+
+// A specific page (e.g. a university's admissions/funding page) that gets
+// re-fetched on demand and diffed against its last known content — the
+// "Site Scanner" tile.
+model WatchedPage {
+  id     String @id @default(cuid())
+  label  String
+  url    String
+
+  lastContentHash String?
+  lastContentText String? // last extracted text snapshot, for a basic diff view
+  lastCheckedAt   DateTime?
+  lastChangedAt   DateTime? // set whenever a check finds the hash differs from before
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum TaskStatus {

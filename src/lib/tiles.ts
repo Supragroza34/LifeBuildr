@@ -47,4 +47,11 @@ export const tiles: Tile[] = [
     href: "/dashboard/checklist",
     icon: "✅",
   },
+  {
+    key: "scanner",
+    title: "Site Scanner",
+    description: "Watch specific pages and flag when their content changes.",
+    href: "/dashboard/scanner",
+    icon: "🔍",
+  },
 ];
