@@ -124,3 +124,28 @@ model NewsSource {
   keywords String? // comma-separated filter terms
   enabled  Boolean @default(true)
 }
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+}
+
+// Cross-school prep tasks (tests, SOP, outreach, visa logistics) that don't
+// belong to one specific Application — the "Prep Checklist" tile.
+model Task {
+  id       String @id @default(cuid())
+  title    String
+  category String // e.g. "Prep", "Fulbright UK", "Kennedy Scholarship", "Visa & Logistics"
+
+  targetWindow String? // free text, e.g. "Now - Mar 2027" — most of these are ranges, not exact dates
+  dueDate      DateTime? // set when a specific date is known, used for sorting/reminders
+  relatedTo    String? // free text, e.g. "All target schools", "Harvard or MIT only"
+
+  status           TaskStatus @default(NOT_STARTED)
+  notes            String?
+  reminderLeadTime String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -40,4 +40,11 @@ export const tiles: Tile[] = [
     href: "/dashboard/catalogue",
     icon: "🏛️",
   },
+  {
+    key: "checklist",
+    title: "Prep Checklist",
+    description: "Cross-school tasks: tests, SOP, outreach, visa logistics.",
+    href: "/dashboard/checklist",
+    icon: "✅",
+  },
 ];
