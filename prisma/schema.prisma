@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model University {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  website   String?
+  city      String?
+  state     String?
+  country   String     @default("USA")
+  notes     String?
+  programs  Program[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Program {
+  id           String  @id @default(cuid())
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  name       String // e.g. "MS Computer Science"
+  degreeType String @default("MS")
+  department String?
+
+  tuitionInfo  String? // free text for now, e.g. "$45,000/yr" or "$1,200/credit"
+  fundingNotes String? // TA/RA/GSR/fellowship availability, free text
+  greRequired  Boolean?
+  greMin       String?
+  toeflMin     Int?
+  ieltsMin     Float?
+  gpaMin       Float?
+  visaNotes    String?
+
+  sourceUrl      String? // where auto-populated data came from
+  lastScrapedAt  DateTime?
+  verifiedFields Json? // per-field review flags, e.g. { "tuitionInfo": { "verified": false, "scrapedAt": "..." } }
+
+  deadlines    Deadline[]
+  applications Application[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([universityId, name])
+}
+
+model Deadline {
+  id        String   @id @default(cuid())
+  programId String
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  label     String // "Application deadline", "Fellowship deadline", "Financial aid deadline"
+  date      DateTime
+
+  @@index([programId])
+}
+
+enum ApplicationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  INTERVIEW
+  DECISION_PENDING
+  ADMITTED
+  REJECTED
+  DECLINED
+}
+
+enum VisaType {
+  F1
+  J1
+  OTHER
+}
+
+model Application {
+  id        String  @id @default(cuid())
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  status      ApplicationStatus @default(NOT_STARTED)
+  visaType    VisaType?
+  notes       String?
+  submittedAt DateTime?
+  decisionAt  DateTime?
+
+  fundingOffers FundingOffer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([programId])
+}
+
+model FundingOffer {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  type          String // "TA", "RA", "Fellowship", "GSR"
+  amount        String?
+  notes         String?
+
+  @@index([applicationId])
+}
+
+model NewsSource {
+  id       String  @id @default(cuid())
+  name     String
+  type     String // "rss" | "api"
+  url      String?
+  keywords String? // comma-separated filter terms
+  enabled  Boolean @default(true)
+}
