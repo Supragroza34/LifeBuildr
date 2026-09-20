@@ -54,4 +54,11 @@ export const tiles: Tile[] = [
     href: "/dashboard/scanner",
     icon: "🔍",
   },
+  {
+    key: "webdevshop",
+    title: "WebDevShop",
+    description: "Polished agency landing page to show prospective clients.",
+    href: "/webdevshop",
+    icon: "💻",
+  },
 ];
